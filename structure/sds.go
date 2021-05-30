@@ -1,14 +1,21 @@
 package structure
 
+import (
+	"bytes"
+)
+
 type sds struct {
 	buf []byte
 }
 
+//创建一个包含给定字符串的sds
 func NewSds(string string) *sds {
-	s := new(sds)
-	s.buf = []byte(string)
+	return &sds{buf: []byte(string)}
+}
 
-	return s
+//创建一个空的sds
+func EmptySds() *sds {
+	return new(sds)
 }
 
 //获取sds长度
@@ -70,4 +77,25 @@ func (sds *sds) Range(start, end int) {
 	}
 
 	sds.buf = sds.buf[start : end+1]
+}
+
+//比较两个sds字符串是否相同
+func (sds *sds) Cmp(s *sds) bool {
+	return bytes.Equal(sds.buf, s.buf)
+}
+
+//去除在sds出现在s中的字符
+func (sds *sds) Trim(s string) {
+	buf := make([]byte, 0)
+loop:
+	for _, element := range sds.buf {
+		for _, j := range s {
+			if int32(element) == j {
+				continue loop
+			}
+		}
+		buf = append(buf, element)
+	}
+
+	sds.buf = buf
 }

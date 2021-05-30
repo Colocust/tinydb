@@ -35,3 +35,26 @@ func TestSDS(t *testing.T) {
 	fmt.Println(len(s1.buf))
 
 }
+
+func TestSds_Empty(t *testing.T) {
+	fmt.Println(EmptySds())
+}
+
+func TestSds_Cpy(t *testing.T) {
+	s1 := NewSds("s2")
+	fmt.Println(string(s1.buf))
+	fmt.Println(len(s1.buf))
+	fmt.Println(cap(s1.buf))
+
+	s1.Cpy("s2")
+	fmt.Println(string(s1.buf))
+	fmt.Println(len(s1.buf))
+	fmt.Println(cap(s1.buf))
+}
+
+func TestSds_Trim(t *testing.T) {
+	s := NewSds("AA...AA.a.aa.aHelloWorld     :::")
+	s.Trim("Aa. :d")
+
+	fmt.Println(string(s.buf))
+}
