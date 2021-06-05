@@ -68,7 +68,7 @@ func (l *List) InsertNode(oldNode *ListNode, value interface{}, after bool) {
 		}
 	}
 
-	//更新oldNode以及oldNode.next
+	//更新oldNode以及oldNode.next/prev
 	if node.prev != nil {
 		node.prev.next = node
 	}
