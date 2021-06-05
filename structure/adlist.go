@@ -50,8 +50,34 @@ func (l *List) Rotate() {
 
 }
 
-func (l *List) InsertNode() {
+//指定节点前后插入一个新节点 after决定前后
+func (l *List) InsertNode(oldNode *ListNode, value interface{}, after bool) {
+	node := new(ListNode)
+	node.value = value
 
+	if after {
+		//先更新新节点前后指针
+		node.prev, node.next = oldNode, oldNode.next
+		if l.tail == oldNode {
+			l.tail = node
+		}
+	} else {
+		node.next, node.prev = oldNode, oldNode.prev
+		if l.head == oldNode {
+			l.head = node
+		}
+	}
+
+	//更新oldNode以及oldNode.next
+	if node.prev != nil {
+		node.prev.next = node
+	}
+
+	if node.next != nil {
+		node.next.prev = node
+	}
+
+	l.len++
 }
 
 //此方法有问题吧 如果删除的节点不在指定的list 需要开发者自行注意

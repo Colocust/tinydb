@@ -11,7 +11,7 @@ func TestList_AddNodeHead(t *testing.T) {
 	l.AddNodeHead("s2")
 	l.AddNodeHead("s3")
 
-	PrintlnList(l)
+	PrintlnListFromHead(l)
 }
 
 func TestList_AddNodeTail(t *testing.T) {
@@ -20,7 +20,7 @@ func TestList_AddNodeTail(t *testing.T) {
 	l.AddNodeTail("s2")
 	l.AddNodeTail("s3")
 
-	PrintlnList(l)
+	PrintlnListFromHead(l)
 }
 
 func TestList_Head(t *testing.T) {
@@ -38,21 +38,43 @@ func TestList_DelNode(t *testing.T) {
 	head := l.Head()
 	l.DelNode(head)
 
-	PrintlnList(l)
+	PrintlnListFromHead(l)
 
 	tail := l.Tail()
 	l.DelNode(tail)
 
-	PrintlnList(l)
+	PrintlnListFromHead(l)
 
 	fmt.Println(l.head, l.tail)
 }
 
-func PrintlnList(l *List) {
+func TestList_InsertNode(t *testing.T) {
+	l := NewList()
+	l.AddNodeTail("s1")
+	l.AddNodeTail("s2")
+	l.AddNodeTail("s3")
+
+	tail := l.Tail()
+	l.InsertNode(tail, "s4", true)
+
+	PrintlnListFromHead(l)
+	PrintlnListFromTail(l)
+}
+
+func PrintlnListFromHead(l *List) {
 	cur := l.head
 	for cur != nil {
 		fmt.Println(cur.value)
 		cur = cur.next
+	}
+	fmt.Println(l.len)
+}
+
+func PrintlnListFromTail(l *List) {
+	cur := l.tail
+	for cur != nil {
+		fmt.Println(cur.value)
+		cur = cur.prev
 	}
 	fmt.Println(l.len)
 }
