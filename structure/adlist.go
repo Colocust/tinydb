@@ -50,6 +50,20 @@ func (l *List) Rotate() {
 
 }
 
+//在链表中查找指定key的节点
+func (l *List) SearchKey(key interface{}) *ListNode {
+	cur := l.head
+
+	for cur != nil {
+		if cur.value == key {
+			return cur
+		}
+		cur = cur.next
+	}
+
+	return nil
+}
+
 //指定节点前后插入一个新节点 after决定前后
 func (l *List) InsertNode(oldNode *ListNode, value interface{}, after bool) {
 	node := new(ListNode)

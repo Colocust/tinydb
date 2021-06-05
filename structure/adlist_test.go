@@ -61,6 +61,19 @@ func TestList_InsertNode(t *testing.T) {
 	PrintlnListFromTail(l)
 }
 
+func TestList_SearchKey(t *testing.T) {
+	l := NewList()
+
+	for i := 1; i <= 1000; i++ {
+		l.AddNodeTail(i)
+	}
+
+	n := l.SearchKey(499)
+	fmt.Println(n)
+
+	PrintlnListFromHead(l)
+}
+
 func PrintlnListFromHead(l *List) {
 	cur := l.head
 	for cur != nil {
