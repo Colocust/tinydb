@@ -48,12 +48,11 @@ func (l *List) AddNodeTail(value interface{}) {
 
 //将尾节点移到头节点
 func (l *List) RotateTailToHead() {
-	if l.GetLen() <= 1 {
+	if l.len <= 1 {
 		return
 	}
 	//取出尾节点
-	tail := l.Tail()
-
+	tail := l.tail
 	//调整尾节点前驱节点指针信息以及链表现尾节点
 	l.tail = tail.prev
 	l.tail.next = nil
@@ -64,7 +63,7 @@ func (l *List) RotateTailToHead() {
 
 //将头节点移到尾节点
 func (l *List) RotateHeadToTail() {
-	if l.GetLen() <= 1 {
+	if l.len <= 1 {
 		return
 	}
 
