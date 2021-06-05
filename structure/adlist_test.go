@@ -74,6 +74,38 @@ func TestList_SearchKey(t *testing.T) {
 	PrintlnListFromHead(l)
 }
 
+func TestList_Index(t *testing.T) {
+	l := NewList()
+	for i := 1; i <= 1000; i++ {
+		l.AddNodeTail(i)
+	}
+
+	index := -1000
+
+	fmt.Println(l.Index(int32(index)))
+}
+
+func TestList_RotateTailToHead(t *testing.T) {
+	l := NewList()
+	for i := 1; i <= 500; i++ {
+		l.AddNodeTail(i)
+	}
+
+	l.RotateTailToHead()
+	PrintlnListFromTail(l)
+}
+
+func TestList_RotateHeadToTail(t *testing.T) {
+	l := NewList()
+	for i := 1; i <= 500; i++ {
+		l.AddNodeTail(i)
+	}
+
+	l.RotateHeadToTail()
+	PrintlnListFromTail(l)
+}
+
+
 func PrintlnListFromHead(l *List) {
 	cur := l.head
 	for cur != nil {

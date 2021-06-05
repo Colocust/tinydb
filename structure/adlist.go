@@ -46,8 +46,34 @@ func (l *List) AddNodeTail(value interface{}) {
 	l.len++
 }
 
-func (l *List) Rotate() {
+//将尾节点移到头节点
+func (l *List) RotateTailToHead() {
+	if l.GetLen() <= 1 {
+		return
+	}
+	//取出尾节点
+	tail := l.Tail()
 
+	//调整尾节点前驱节点指针信息以及链表现尾节点
+	l.tail = tail.prev
+	l.tail.next = nil
+	//将尾节点移动到头节点
+	l.head.prev, tail.next, tail.prev = tail, l.head, nil
+	l.head = tail
+}
+
+//将头节点移到尾节点
+func (l *List) RotateHeadToTail() {
+	if l.GetLen() <= 1 {
+		return
+	}
+
+	head := l.head
+	l.head = head.next
+	l.head.prev = nil
+
+	l.tail.next, head.prev, head.next = head, l.tail, nil
+	l.tail = head
 }
 
 //在链表中查找指定key的节点
@@ -62,6 +88,28 @@ func (l *List) SearchKey(key interface{}) *ListNode {
 	}
 
 	return nil
+}
+
+//获取指定索引的节点
+func (l *List) Index(index int32) *ListNode {
+	var n *ListNode
+
+	if index < 0 {
+		index = (-index) - 1
+		n = l.tail
+		for index > 0 && n != nil {
+			n = n.prev
+			index--
+		}
+	} else {
+		n = l.head
+		for index > 0 && n != nil {
+			n = n.next
+			index--
+		}
+	}
+
+	return n
 }
 
 //指定节点前后插入一个新节点 after决定前后
