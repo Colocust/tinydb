@@ -10,7 +10,7 @@ type (
 	List struct {
 		head *ListNode
 		tail *ListNode
-		len  uint32
+		len  uint
 	}
 )
 
@@ -90,7 +90,7 @@ func (l *List) SearchKey(key interface{}) *ListNode {
 }
 
 //获取指定索引的节点
-func (l *List) Index(index int32) *ListNode {
+func (l *List) Index(index int) *ListNode {
 	var n *ListNode
 
 	if index < 0 {
@@ -158,7 +158,7 @@ func (l *List) DelNode(n *ListNode) {
 	l.len--
 }
 
-func (l *List) GetLen() uint32 {
+func (l *List) GetLen() uint {
 	return l.len
 }
 

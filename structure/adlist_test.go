@@ -82,7 +82,7 @@ func TestList_Index(t *testing.T) {
 
 	index := -1000
 
-	fmt.Println(l.Index(int32(index)))
+	fmt.Println(l.Index(index))
 }
 
 func TestList_RotateTailToHead(t *testing.T) {
