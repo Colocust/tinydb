@@ -15,34 +15,34 @@ type (
 )
 
 func NewList() *List {
-	l := new(List)
-	l.len = 0
-	return l
+	return &List{
+		len: 0,
+	}
+}
+
+func newNode(value interface{}) *ListNode {
+	return &ListNode{
+		value: value,
+	}
 }
 
 func (l *List) AddNodeHead(value interface{}) {
-	node := new(ListNode)
-	node.value = value
-
+	node := newNode(value)
 	if l.len == 0 {
 		l.head, l.tail = node, node
 	} else {
 		node.next, l.head.prev, l.head = l.head, node, node
 	}
-
 	l.len++
 }
 
 func (l *List) AddNodeTail(value interface{}) {
-	node := new(ListNode)
-	node.value = value
-
+	node := newNode(value)
 	if l.len == 0 {
 		l.head, l.tail = node, node
 	} else {
 		node.prev, l.tail.next, l.tail = l.tail, node, node
 	}
-
 	l.len++
 }
 
@@ -92,7 +92,6 @@ func (l *List) SearchKey(key interface{}) *ListNode {
 //获取指定索引的节点
 func (l *List) Index(index int) *ListNode {
 	var n *ListNode
-
 	if index < 0 {
 		index = (-index) - 1
 		n = l.tail
@@ -107,14 +106,12 @@ func (l *List) Index(index int) *ListNode {
 			index--
 		}
 	}
-
 	return n
 }
 
 //指定节点前后插入一个新节点 after决定前后
 func (l *List) InsertNode(oldNode *ListNode, value interface{}, after bool) {
-	node := new(ListNode)
-	node.value = value
+	node := newNode(value)
 
 	if after {
 		//先更新新节点前后指针
