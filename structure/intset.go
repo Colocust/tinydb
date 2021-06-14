@@ -1,6 +1,9 @@
 package structure
 
-import "math/rand"
+import (
+	"math/rand"
+	"time"
+)
 
 type IntSet struct {
 	contents []int
@@ -39,7 +42,9 @@ func (is *IntSet) Find(value int) (exist bool) {
 }
 
 func (is *IntSet) Random() int {
-	return is.contents[rand.Intn(len(is.contents))]
+	rand.Seed(time.Now().Unix())
+	random := rand.Intn(len(is.contents))
+	return is.contents[random]
 }
 
 func (is *IntSet) Get(pos int) int {
