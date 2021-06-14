@@ -46,6 +46,10 @@ func (is *IntSet) Get(pos int) int {
 	return is.contents[pos]
 }
 
+func (is *IntSet) GetLen() int {
+	return len(is.contents)
+}
+
 func (is *IntSet) Set(pos int, value int) {
 	is.contents[pos] = value
 }
