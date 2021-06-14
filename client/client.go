@@ -2,6 +2,6 @@ package main
 
 import "fmt"
 
-func s()  {
+func main()  {
 	fmt.Println("client")
 }
