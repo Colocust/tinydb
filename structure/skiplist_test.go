@@ -6,7 +6,8 @@ import (
 )
 
 func TestNewSkipList(t *testing.T) {
-	for i := 0; i < 1000; i++ {
-		fmt.Println(randomLevel())
-	}
+	sl := NewSkipList()
+	fmt.Println(sl)
+	fmt.Println(sl.header)
+	fmt.Println(sl.header.ele)
 }

@@ -5,19 +5,22 @@ import (
 	"time"
 )
 
-const skipListMaxLevel = 32 //跳跃表最大的节点层数
-const skipListP = 0.25
+const (
+	skipListInitLevel = 1  //跳跃表初始level
+	skipListMaxLevel  = 32 //跳跃表最大的节点层数
+	skipListP         = 0.25
+)
 
 type (
 	SkipList struct {
 		header *SkipListNode
 		tail   *SkipListNode
-		length int
-		level  int
+		length uint
+		level  uint8
 	}
 
 	SkipListNode struct {
-		ele      sds
+		ele      *sds
 		score    float32
 		backward *SkipListNode
 		level    []SkipListLevel
@@ -25,25 +28,25 @@ type (
 
 	SkipListLevel struct {
 		forward *SkipListNode
-		span    uint32
+		span    uint
 	}
 )
 
 func NewSkipList() *SkipList {
-	sl := new(SkipList)
-	sl.length, sl.level, sl.tail = 0, 1, nil
-	sl.header = new(SkipListNode)
-	sl.header.ele, sl.header.score, sl.header.backward = *new(sds), 0, nil
+	sl := &SkipList{
+		header: NewSkipListNode(EmptySds(), 0),
+		length: 0,
+		level:  skipListInitLevel,
+	}
 	for i := 0; i < skipListMaxLevel; i++ {
 		sl.header.level = append(sl.header.level, *&SkipListLevel{
-			forward: nil,
-			span:    0,
+			span: 0,
 		})
 	}
 	return sl
 }
 
-func NewSkipListNode(ele sds, score float32) *SkipListNode {
+func NewSkipListNode(ele *sds, score float32) *SkipListNode {
 	return &SkipListNode{
 		ele:   ele,
 		score: score,
@@ -51,7 +54,7 @@ func NewSkipListNode(ele sds, score float32) *SkipListNode {
 }
 
 func randomLevel() int {
-	level := 1
+	level := skipListInitLevel
 	for {
 		rand.Seed(time.Now().UnixNano())
 		if float64(rand.Int()&0xFFFF) < skipListP*0xFFFF {
@@ -64,4 +67,8 @@ func randomLevel() int {
 		return level
 	}
 	return skipListMaxLevel
+}
+
+func (sl *SkipList) Insert(ele sds, score float32) {
+
 }
