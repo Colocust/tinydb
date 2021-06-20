@@ -86,7 +86,7 @@ func (sl *SkipList) Insert(ele *sds, score float32) {
 		for node.level[i].forward != nil &&
 			(score > node.level[i].forward.score ||
 				(score == node.level[i].forward.score &&
-					ele.Cmp(node.level[i].forward.ele) > 0)) {
+					node.level[i].forward.ele.Cmp(ele) < 0)) {
 			rank[i] += node.level[i].span
 			node = node.level[i].forward
 		}
@@ -135,7 +135,7 @@ func (sl *SkipList) Delete(ele *sds, score float32) (result bool, node *SkipList
 		for node.level[i].forward != nil &&
 			(score > node.level[i].forward.score ||
 				(score == node.level[i].forward.score &&
-					ele.Cmp(node.level[i].forward.ele) > 0)) {
+					node.level[i].forward.ele.Cmp(ele) > 0)) {
 			node = node.level[i].forward
 		}
 		update[i] = node
