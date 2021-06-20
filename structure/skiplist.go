@@ -201,6 +201,24 @@ func (sl *SkipList) UpdateScore(ele *sds, curScore float32, newScore float32) *S
 	return nil
 }
 
+// 判断跳表中是否由元素的值在指定区间内
+func (sl *SkipList) IsInRange(zrs *ZRangeSpec) bool {
+	if zrs.min > zrs.max || (zrs.min == zrs.max && (zrs.minex || zrs.maxex)) {
+		return false
+	}
+
+	node := sl.tail
+	if node == nil || !zrs.isValueLteMax(node.score) {
+		return false
+	}
+	node = sl.header.level[0].forward
+	if node == nil || !zrs.isValueGteMin(node.score) {
+		return false
+	}
+
+	return true
+}
+
 func (sl *SkipList) GetRank() {
 
 }
