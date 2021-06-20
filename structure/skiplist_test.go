@@ -61,6 +61,13 @@ func TestSkipList_UpdateScore(t *testing.T) {
 
 }
 
+func TestSkipList_Range(t *testing.T) {
+	sl := CreateSkipList()
+	zrs := NewZRangeSpec(7, 9, true, false)
+	fmt.Println(sl.FirstInRange(zrs))
+	fmt.Println(sl.LastInRange(zrs))
+}
+
 func CreateSkipList() *SkipList {
 	sl := NewSkipList()
 

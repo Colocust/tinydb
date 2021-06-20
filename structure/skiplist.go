@@ -208,15 +208,51 @@ func (sl *SkipList) IsInRange(zrs *ZRangeSpec) bool {
 	}
 
 	node := sl.tail
-	if node == nil || !zrs.isValueLteMax(node.score) {
+	if node == nil || !zrs.isValueGteMin(node.score) {
 		return false
 	}
 	node = sl.header.level[0].forward
-	if node == nil || !zrs.isValueGteMin(node.score) {
+	if node == nil || !zrs.isValueLteMax(node.score) {
 		return false
 	}
 
 	return true
+}
+
+// 寻找在指定区间内跳表中的第一个元素
+func (sl *SkipList) FirstInRange(zrs *ZRangeSpec) *SkipListNode {
+	var node *SkipListNode
+
+	if !sl.IsInRange(zrs) {
+		return nil
+	}
+
+	node = sl.header
+	for i := sl.level - 1; i >= 0; i-- {
+		for node.level[i].forward != nil && !zrs.isValueGteMin(node.level[i].forward.score) {
+			node = node.level[i].forward
+		}
+	}
+
+	node = node.level[0].forward
+	return node
+}
+
+func (sl *SkipList) LastInRange(zrs *ZRangeSpec) *SkipListNode {
+	var node *SkipListNode
+
+	if !sl.IsInRange(zrs) {
+		return nil
+	}
+
+	node = sl.header
+	for i := sl.level - 1; i >= 0; i-- {
+		for node.level[i].forward != nil && zrs.isValueLteMax(node.level[i].forward.score) {
+			node = node.level[i].forward
+		}
+	}
+
+	return node
 }
 
 func (sl *SkipList) GetRank() {
