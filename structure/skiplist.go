@@ -83,7 +83,10 @@ func (sl *SkipList) Insert(ele *sds, score float32) {
 			rank[i] = rank[i+1]
 		}
 
-		for node.level[i].forward != nil && score > node.level[i].forward.score {
+		for node.level[i].forward != nil &&
+			(score > node.level[i].forward.score ||
+				(score == node.level[i].forward.score &&
+					ele.Cmp(node.level[i].forward.ele) > 0)) {
 			rank[i] += node.level[i].span
 			node = node.level[i].forward
 		}
