@@ -1,7 +1,7 @@
 package structure
 
 import (
-	"bytes"
+	"strings"
 )
 
 type sds struct {
@@ -80,8 +80,8 @@ func (sds *sds) Range(start, end int) {
 }
 
 //比较两个sds字符串是否相同
-func (sds *sds) Cmp(s *sds) bool {
-	return bytes.Equal(sds.buf, s.buf)
+func (sds *sds) Cmp(s *sds) int {
+	return strings.Compare(string(sds.buf), string(s.buf))
 }
 
 //去除在sds出现在s中的字符
