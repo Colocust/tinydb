@@ -42,3 +42,30 @@ func TestSkipList_Delete(t *testing.T) {
 	}
 	fmt.Println(sl.tail)
 }
+
+func TestSkipList_UpdateScore(t *testing.T) {
+	sl := CreateSkipList()
+	n := sl.header
+	for i := uint(0); i < sl.length; i++ {
+		n = n.level[0].forward
+		fmt.Println(n)
+	}
+
+	fmt.Println("s")
+	sl.UpdateScore(NewSds("5"), 6, 6)
+	n = sl.header
+	for i := uint(0); i < sl.length; i++ {
+		n = n.level[0].forward
+		fmt.Println(n)
+	}
+
+}
+
+func CreateSkipList() *SkipList {
+	sl := NewSkipList()
+
+	for i := 10; i > 0; i-- {
+		sl.Insert(NewSds(strconv.Itoa(i)), float32(i))
+	}
+	return sl
+}

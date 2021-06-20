@@ -70,7 +70,7 @@ func randomLevel() int8 {
 	return skipListMaxLevel
 }
 
-func (sl *SkipList) Insert(ele *sds, score float32) {
+func (sl *SkipList) Insert(ele *sds, score float32) *SkipListNode {
 	update, rank, node :=
 		[skipListMaxLevel]*SkipListNode{},
 		[skipListMaxLevel]uint{},
@@ -126,6 +126,7 @@ func (sl *SkipList) Insert(ele *sds, score float32) {
 	}
 
 	sl.length++
+	return node
 }
 
 func (sl *SkipList) Delete(ele *sds, score float32) (result bool, node *SkipListNode) {
@@ -172,4 +173,34 @@ func (sl *SkipList) deleteNode(node *SkipListNode, update [skipListMaxLevel]*Ski
 	}
 
 	sl.length--
+}
+
+func (sl *SkipList) UpdateScore(ele *sds, curScore float32, newScore float32) *SkipListNode {
+	update, node := [skipListMaxLevel]*SkipListNode{}, sl.header
+
+	for i := sl.level - 1; i >= 0; i-- {
+		for node.level[i].forward != nil &&
+			(curScore > node.level[i].forward.score ||
+				(curScore == node.level[i].forward.score &&
+					node.level[i].forward.ele.Cmp(ele) > 0)) {
+			node = node.level[i].forward
+		}
+		update[i] = node
+	}
+
+	node = node.level[0].forward
+	if node != nil && node.score == curScore && node.ele.Cmp(ele) == 0 {
+		if (node.backward == nil || node.backward.score < newScore) &&
+			(node.level[0].forward == nil || node.level[0].forward.score > newScore) {
+			node.score = newScore
+			return node
+		}
+		sl.deleteNode(node, update)
+		return sl.Insert(ele, newScore)
+	}
+	return nil
+}
+
+func (sl *SkipList) GetRank() {
+
 }
