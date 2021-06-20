@@ -127,3 +127,49 @@ func (sl *SkipList) Insert(ele *sds, score float32) {
 
 	sl.length++
 }
+
+func (sl *SkipList) Delete(ele *sds, score float32) (result bool, node *SkipListNode) {
+	update, node, result := [skipListMaxLevel]*SkipListNode{}, sl.header, false
+
+	for i := sl.level - 1; i >= 0; i-- {
+		for node.level[i].forward != nil &&
+			(score > node.level[i].forward.score ||
+				(score == node.level[i].forward.score &&
+					ele.Cmp(node.level[i].forward.ele) > 0)) {
+			node = node.level[i].forward
+		}
+		update[i] = node
+	}
+
+	node = node.level[0].forward
+
+	if node != nil && node.score == score && node.ele.Cmp(ele) == 0 {
+		sl.deleteNode(node, update)
+		result = true
+		return
+	}
+	return
+}
+
+func (sl *SkipList) deleteNode(node *SkipListNode, update [skipListMaxLevel]*SkipListNode) {
+	for i := sl.level - 1; i >= 0; i-- {
+		if update[i].level[i].forward == node {
+			update[i].level[i].span += node.level[i].span - 1
+			update[i].level[i].forward = node.level[i].forward
+		} else {
+			update[i].level[i].span--
+		}
+	}
+	//如果被删除的node是最后一个元素
+	if node.level[0].forward == nil {
+		sl.tail = node.backward
+	} else {
+		node.level[0].forward.backward = node.backward
+	}
+
+	for sl.level > 1 && sl.header.level[sl.level-1].forward == nil {
+		sl.level--
+	}
+
+	sl.length--
+}
