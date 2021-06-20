@@ -7,7 +7,14 @@ import (
 
 func TestNewSkipList(t *testing.T) {
 	sl := NewSkipList()
-	fmt.Println(sl)
-	fmt.Println(sl.header)
-	fmt.Println(sl.header.ele)
+
+	sl.Insert(NewSds("1"), 1)
+	sl.Insert(NewSds("2"), 2)
+	sl.Insert(NewSds("2"), 3)
+
+	n := sl.header
+	for i := uint(0); i < sl.length; i++ {
+		n = n.level[0].forward
+		fmt.Println(n)
+	}
 }
