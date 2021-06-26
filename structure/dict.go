@@ -1,26 +1,26 @@
 package structure
 
-type dict struct {
+type Dict struct {
 	table map[string]interface{}
 }
 
-func NewDict() *dict {
-	return &dict{
+func NewDict() *Dict {
+	return &Dict{
 		table: make(map[string]interface{}),
 	}
 }
-func (d *dict) Set(key string, value interface{}) {
+func (d *Dict) Set(key string, value interface{}) {
 	d.table[key] = value
 }
 
-func (d *dict) Get(key string) interface{} {
+func (d *Dict) Get(key string) interface{} {
 	return d.table[key]
 }
 
-func (d *dict) Remove(key string) {
+func (d *Dict) Remove(key string) {
 	delete(d.table, key)
 }
 
-func (d *dict) GetLen() int {
+func (d *Dict) GetLen() int {
 	return len(d.table)
 }
