@@ -43,3 +43,31 @@ func (zrs *ZRangeSpec) isValueLteMax(value float32) bool {
 		return false
 	}
 }
+
+func (zrs *ZRangeSpec) isValueLtMin(value float32) bool {
+	if zrs.minex {
+		if value <= zrs.min {
+			return true
+		}
+		return false
+	} else {
+		if value < zrs.min {
+			return true
+		}
+		return false
+	}
+}
+
+func (zrs *ZRangeSpec) isValueGtMax(value float32) bool {
+	if zrs.maxex {
+		if value >= zrs.max {
+			return true
+		}
+		return false
+	} else {
+		if value > zrs.max {
+			return true
+		}
+		return false
+	}
+}

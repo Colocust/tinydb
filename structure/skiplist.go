@@ -145,14 +145,14 @@ func (sl *SkipList) Delete(ele *sds, score float32) (result bool, node *SkipList
 	node = node.level[0].forward
 
 	if node != nil && node.score == score && node.ele.Cmp(ele) == 0 {
-		sl.deleteNode(node, update)
+		sl.delete(node, update)
 		result = true
 		return
 	}
 	return
 }
 
-func (sl *SkipList) deleteNode(node *SkipListNode, update [skipListMaxLevel]*SkipListNode) {
+func (sl *SkipList) delete(node *SkipListNode, update [skipListMaxLevel]*SkipListNode) {
 	for i := sl.level - 1; i >= 0; i-- {
 		if update[i].level[i].forward == node {
 			update[i].level[i].span += node.level[i].span - 1
@@ -195,13 +195,13 @@ func (sl *SkipList) UpdateScore(ele *sds, curScore float32, newScore float32) *S
 			node.score = newScore
 			return node
 		}
-		sl.deleteNode(node, update)
+		sl.delete(node, update)
 		return sl.Insert(ele, newScore)
 	}
 	return nil
 }
 
-// 判断跳表中是否由元素的值在指定区间内
+// IsInRange 判断跳表中是否由元素的值在指定区间内
 func (sl *SkipList) IsInRange(zrs *ZRangeSpec) bool {
 	if zrs.min > zrs.max || (zrs.min == zrs.max && (zrs.minex || zrs.maxex)) {
 		return false
@@ -219,7 +219,7 @@ func (sl *SkipList) IsInRange(zrs *ZRangeSpec) bool {
 	return true
 }
 
-// 寻找在指定区间内跳表中的第一个元素
+// FirstInRange 寻找在指定区间内跳表中的第一个元素
 func (sl *SkipList) FirstInRange(zrs *ZRangeSpec) *SkipListNode {
 	var node *SkipListNode
 
@@ -235,6 +235,12 @@ func (sl *SkipList) FirstInRange(zrs *ZRangeSpec) *SkipListNode {
 	}
 
 	node = node.level[0].forward
+
+	// 检查当前节点是否大于最大值
+	if !zrs.isValueLteMax(node.score) {
+		return nil
+	}
+
 	return node
 }
 
@@ -252,7 +258,33 @@ func (sl *SkipList) LastInRange(zrs *ZRangeSpec) *SkipListNode {
 		}
 	}
 
+	// 检查当前节点是否小于最小值
+	if !zrs.isValueGteMin(node.score) {
+		return nil
+	}
+
 	return node
+}
+
+func (sl *SkipList) DeleteByRange(zrs *ZRangeSpec) int {
+	update, node, removed := [skipListMaxLevel]*SkipListNode{}, sl.header, 0
+
+	for i := sl.level - 1; i >= 0; i-- {
+		for node.level[i].forward != nil && zrs.isValueLtMin(node.level[i].forward.score) {
+			node = node.level[i].forward
+		}
+		update[i] = node
+	}
+
+	node = node.level[0].forward
+
+	for node != nil && zrs.isValueLteMax(node.score) {
+		next := node.level[0].forward
+		sl.delete(node, update)
+		removed++
+		node = next
+	}
+	return removed
 }
 
 func (sl *SkipList) GetRank() {

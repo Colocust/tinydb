@@ -62,10 +62,23 @@ func TestSkipList_UpdateScore(t *testing.T) {
 }
 
 func TestSkipList_Range(t *testing.T) {
-	sl := CreateSkipList()
+	sl := NewSkipList()
+	sl.Insert(NewSds("1"), 1)
+	sl.Insert(NewSds("2"), 2)
+	sl.Insert(NewSds("11"), 11)
+
 	zrs := NewZRangeSpec(7, 9, true, false)
 	fmt.Println(sl.FirstInRange(zrs))
 	fmt.Println(sl.LastInRange(zrs))
+}
+
+func TestSkipList_DeleteByRange(t *testing.T) {
+	sl := CreateSkipList()
+	Println(sl)
+	r := NewZRangeSpec(6, 9, false, true)
+	fmt.Println(sl.DeleteByRange(r))
+	fmt.Println("sssss")
+	Println(sl)
 }
 
 func CreateSkipList() *SkipList {
@@ -75,4 +88,12 @@ func CreateSkipList() *SkipList {
 		sl.Insert(NewSds(strconv.Itoa(i)), float32(i))
 	}
 	return sl
+}
+
+func Println(sl *SkipList) {
+	n := sl.header
+	for i := uint(0); i < sl.length; i++ {
+		n = n.level[0].forward
+		fmt.Println(n)
+	}
 }
