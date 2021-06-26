@@ -2,6 +2,7 @@ package structure
 
 import (
 	"math/rand"
+	"strings"
 	"time"
 )
 
@@ -20,7 +21,7 @@ type (
 	}
 
 	SkipListNode struct {
-		ele      *sds
+		ele      string
 		score    float32
 		backward *SkipListNode
 		level    []SkipListLevel
@@ -34,7 +35,7 @@ type (
 
 func NewSkipList() *SkipList {
 	sl := &SkipList{
-		header: NewSkipListNode(EmptySds(), 0, skipListMaxLevel),
+		header: NewSkipListNode("", 0, skipListMaxLevel),
 		length: 0,
 		level:  skipListInitLevel,
 	}
@@ -46,7 +47,7 @@ func NewSkipList() *SkipList {
 	return sl
 }
 
-func NewSkipListNode(ele *sds, score float32, level int8) *SkipListNode {
+func NewSkipListNode(ele string, score float32, level int8) *SkipListNode {
 	return &SkipListNode{
 		ele:   ele,
 		score: score,
@@ -70,7 +71,7 @@ func randomLevel() int8 {
 	return skipListMaxLevel
 }
 
-func (sl *SkipList) Insert(ele *sds, score float32) *SkipListNode {
+func (sl *SkipList) Insert(ele string, score float32) *SkipListNode {
 	update, rank, node :=
 		[skipListMaxLevel]*SkipListNode{},
 		[skipListMaxLevel]uint{},
@@ -86,7 +87,7 @@ func (sl *SkipList) Insert(ele *sds, score float32) *SkipListNode {
 		for node.level[i].forward != nil &&
 			(score > node.level[i].forward.score ||
 				(score == node.level[i].forward.score &&
-					node.level[i].forward.ele.Cmp(ele) < 0)) {
+					strings.Compare(node.level[i].forward.ele, ele) < 0)) {
 			rank[i] += node.level[i].span
 			node = node.level[i].forward
 		}
@@ -129,14 +130,14 @@ func (sl *SkipList) Insert(ele *sds, score float32) *SkipListNode {
 	return node
 }
 
-func (sl *SkipList) Delete(ele *sds, score float32) (result bool, node *SkipListNode) {
+func (sl *SkipList) Delete(ele string, score float32) (result bool, node *SkipListNode) {
 	update, node, result := [skipListMaxLevel]*SkipListNode{}, sl.header, false
 
 	for i := sl.level - 1; i >= 0; i-- {
 		for node.level[i].forward != nil &&
 			(score > node.level[i].forward.score ||
 				(score == node.level[i].forward.score &&
-					node.level[i].forward.ele.Cmp(ele) > 0)) {
+					strings.Compare(node.level[i].forward.ele, ele) < 0)) {
 			node = node.level[i].forward
 		}
 		update[i] = node
@@ -144,7 +145,7 @@ func (sl *SkipList) Delete(ele *sds, score float32) (result bool, node *SkipList
 
 	node = node.level[0].forward
 
-	if node != nil && node.score == score && node.ele.Cmp(ele) == 0 {
+	if node != nil && node.score == score && strings.Compare(node.ele, ele) == 0 {
 		sl.delete(node, update)
 		result = true
 		return
@@ -175,21 +176,21 @@ func (sl *SkipList) delete(node *SkipListNode, update [skipListMaxLevel]*SkipLis
 	sl.length--
 }
 
-func (sl *SkipList) UpdateScore(ele *sds, curScore float32, newScore float32) *SkipListNode {
+func (sl *SkipList) UpdateScore(ele string, curScore float32, newScore float32) *SkipListNode {
 	update, node := [skipListMaxLevel]*SkipListNode{}, sl.header
 
 	for i := sl.level - 1; i >= 0; i-- {
 		for node.level[i].forward != nil &&
 			(curScore > node.level[i].forward.score ||
 				(curScore == node.level[i].forward.score &&
-					node.level[i].forward.ele.Cmp(ele) > 0)) {
+					strings.Compare(node.level[i].forward.ele, ele) < 0)) {
 			node = node.level[i].forward
 		}
 		update[i] = node
 	}
 
 	node = node.level[0].forward
-	if node != nil && node.score == curScore && node.ele.Cmp(ele) == 0 {
+	if node != nil && node.score == curScore && strings.Compare(node.ele, ele) == 0 {
 		if (node.backward == nil || node.backward.score < newScore) &&
 			(node.level[0].forward == nil || node.level[0].forward.score > newScore) {
 			node.score = newScore
@@ -266,8 +267,9 @@ func (sl *SkipList) LastInRange(zrs *ZRangeSpec) *SkipListNode {
 	return node
 }
 
-func (sl *SkipList) DeleteByScore(zrs *ZRangeSpec, dict *Dict) int {
-	update, node, removed := [skipListMaxLevel]*SkipListNode{}, sl.header, 0
+func (sl *SkipList) DeleteByScore(zrs *ZRangeSpec, dict *Dict) uint {
+	update, node := [skipListMaxLevel]*SkipListNode{}, sl.header
+	var removed uint = 0
 
 	for i := sl.level - 1; i >= 0; i-- {
 		for node.level[i].forward != nil && zrs.isValueLtMin(node.level[i].forward.score) {
@@ -288,6 +290,51 @@ func (sl *SkipList) DeleteByScore(zrs *ZRangeSpec, dict *Dict) int {
 	return removed
 }
 
-func (sl *SkipList) GetRank() {
+func (sl *SkipList) DeleteByRank(start, end uint, dict *Dict) uint {
+	update, node := [skipListMaxLevel]*SkipListNode{}, sl.header
+	var (
+		traversed uint = 0
+		removed   uint = 0
+	)
+	for i := sl.level - 1; i >= 0; i-- {
+		for node.level[i].forward != nil && (traversed+node.level[i].span < start) {
+			traversed += node.level[i].span
+			node = node.level[i].forward
+		}
+		update[i] = node
+	}
+	node = update[0].level[0].forward
+	traversed++
 
+	for node.level[0].forward != nil && traversed <= end {
+		next := node.level[0].forward
+		sl.delete(node, update)
+		dict.Remove(node.ele)
+		node = next
+		removed++
+		traversed++
+	}
+	return removed
+}
+
+func (sl *SkipList) GetRank(ele string, score float32) uint {
+	var (
+		node      = sl.header
+		rank uint = 0
+	)
+
+	for i := sl.level - 1; i >= 0; i-- {
+		for node.level[i].forward != nil &&
+			(node.level[i].forward.score < score ||
+				(node.level[i].forward.score == score &&
+					strings.Compare(node.level[i].forward.ele, ele) == 0)) {
+			rank += node.level[i].span
+			node = node.level[i].forward
+		}
+
+		if strings.Compare(node.ele, ele) == 0 {
+			return rank
+		}
+	}
+	return 0
 }
