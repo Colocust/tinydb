@@ -4,51 +4,55 @@ import (
 	"strings"
 )
 
-type sds struct {
+type Sds struct {
 	buf []byte
 }
 
 //创建一个包含给定字符串的sds
-func NewSds(string string) *sds {
-	return &sds{buf: []byte(string)}
+func NewSds(string string) *Sds {
+	return &Sds{buf: []byte(string)}
 }
 
 //创建一个空的sds
-func EmptySds() *sds {
-	return new(sds)
+func EmptySds() *Sds {
+	return new(Sds)
 }
 
 //获取sds长度
-func (sds *sds) GetLen() int {
+func (sds *Sds) GetLen() int {
 	return len(sds.buf)
 }
 
-func (sds *sds) cat(b []byte) {
+func (sds *Sds) cat(b []byte) {
 	sds.buf = append(sds.buf, b...)
 }
 
 //将一个字符串追加到指定sds后面
-func (sds *sds) CatString(s string) {
+func (sds *Sds) CatString(s string) {
 	sds.cat([]byte(s))
 }
 
 //将一个sds追加到指定sds后面
-func (sds *sds) CatSds(s *sds) {
+func (sds *Sds) CatSds(s *Sds) {
 	sds.cat(s.buf)
 }
 
 //获取sds内容
-func (sds *sds) GetBuf() []byte {
+func (sds *Sds) GetBuf() []byte {
 	return sds.buf
 }
 
+func (sds *Sds) GetString() string {
+	return string(sds.GetBuf())
+}
+
 //设置sds内容
-func (sds *sds) Cpy(s string) {
+func (sds *Sds) Cpy(s string) {
 	sds.buf = []byte(s)
 }
 
 //保留sds指定区间内的数据
-func (sds *sds) Range(start, end int) {
+func (sds *Sds) Range(start, end int) {
 	l := len(sds.buf)
 	if l == 0 {
 		return
@@ -80,12 +84,12 @@ func (sds *sds) Range(start, end int) {
 }
 
 //比较两个sds字符串是否相同
-func (sds *sds) Cmp(s *sds) int {
+func (sds *Sds) Cmp(s *Sds) int {
 	return strings.Compare(string(sds.buf), string(s.buf))
 }
 
 //去除在sds出现在s中的字符
-func (sds *sds) Trim(s string) {
+func (sds *Sds) Trim(s string) {
 	buf := make([]byte, 0)
 loop:
 	for _, element := range sds.buf {
