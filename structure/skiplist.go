@@ -266,7 +266,7 @@ func (sl *SkipList) LastInRange(zrs *ZRangeSpec) *SkipListNode {
 	return node
 }
 
-func (sl *SkipList) DeleteByRange(zrs *ZRangeSpec) int {
+func (sl *SkipList) DeleteByRange(zrs *ZRangeSpec, dict *Dict) int {
 	update, node, removed := [skipListMaxLevel]*SkipListNode{}, sl.header, 0
 
 	for i := sl.level - 1; i >= 0; i-- {
@@ -281,6 +281,7 @@ func (sl *SkipList) DeleteByRange(zrs *ZRangeSpec) int {
 	for node != nil && zrs.isValueLteMax(node.score) {
 		next := node.level[0].forward
 		sl.delete(node, update)
+		dict.Remove(node.ele)
 		removed++
 		node = next
 	}
