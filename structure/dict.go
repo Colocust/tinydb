@@ -1,23 +1,23 @@
 package structure
 
 type Dict struct {
-	table map[*sds]interface{}
+	table map[string]interface{}
 }
 
 func NewDict() *Dict {
 	return &Dict{
-		table: make(map[*sds]interface{}),
+		table: make(map[string]interface{}),
 	}
 }
-func (d *Dict) Set(key *sds, value interface{}) {
+func (d *Dict) Set(key string, value interface{}) {
 	d.table[key] = value
 }
 
-func (d *Dict) Get(key *sds) interface{} {
+func (d *Dict) Get(key string) interface{} {
 	return d.table[key]
 }
 
-func (d *Dict) Remove(key *sds) {
+func (d *Dict) Remove(key string) {
 	delete(d.table, key)
 }
 
