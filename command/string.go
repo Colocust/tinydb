@@ -10,12 +10,12 @@ func GetCommand(d *db.DB, key string) *object.Object {
 }
 
 func getGenericCommand(d *db.DB, key string) *object.Object {
-	o := d.LookupKeyRead(key)
-	if o == nil {
+	obj := d.LookupKeyReadOrReply(key)
+	if obj == nil {
 		return nil
 	}
-	if o.T != object.ObjString {
+	if obj.GetType() != object.ObjString {
 		return nil
 	}
-	return o
+	return obj
 }
