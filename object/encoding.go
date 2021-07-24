@@ -1,14 +1,14 @@
 package object
 
 const (
-	encodingRaw        = 0
-	encodingInt        = 1
-	encodingHt         = 2
-	encodingZipMap     = 3
-	encodingLinkedList = 4
-	encodingZipList    = 5
-	encodingIntSet     = 6
-	encodingSkipList   = 7
-	encodingEmbStr     = 8
-	encodingQuickList  = 9
+	EncodingRaw        = 0
+	EncodingInt        = 1
+	EncodingHt         = 2
+	EncodingZipMap     = 3
+	EncodingLinkedList = 4
+	EncodingZipList    = 5
+	EncodingIntSet     = 6
+	EncodingSkipList   = 7
+	EncodingEmbStr     = 8
+	EncodingQuickList  = 9
 )
