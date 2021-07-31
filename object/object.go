@@ -1,5 +1,7 @@
 package object
 
+import "tinydb/server"
+
 type Object struct {
 	t        uint8
 	encoding uint8
@@ -44,4 +46,25 @@ func NewStringObject(p *string) *Object {
 
 func NewIntObject(p *int) *Object {
 	return newObject(ObjString, EncodingInt, p)
+}
+
+func (obj *Object) GetIntOrReply(target *int) int {
+	var value int
+	if obj.getInt(&value) != server.OK {
+		//addReply
+		return server.ERR
+	}
+	target = &value
+	return server.OK
+}
+
+func (obj *Object) getInt(target *int) int {
+	var value int
+	if obj.GetType() != ObjString || obj.GetEncoding() != EncodingInt {
+		return server.ERR
+	}
+
+	value = *obj.ptr.(*int)
+	target = &value
+	return server.OK
 }
