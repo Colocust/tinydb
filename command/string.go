@@ -4,7 +4,6 @@ import (
 	"time"
 	"tinydb/db"
 	"tinydb/object"
-	"tinydb/server"
 )
 
 const (
@@ -37,7 +36,7 @@ func SetCommand(d *db.DB) {
 func setGenericCommand(d *db.DB, flag int, key *object.Object, value *object.Object, expire *object.Object) {
 	millisecond := 0
 	if expire != nil {
-		if expire.GetIntOrReply(&millisecond) != server.OK {
+		if err := expire.GetIntOrReply(&millisecond); err != nil {
 			return
 		}
 		if millisecond <= 0 {

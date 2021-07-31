@@ -1,21 +1,26 @@
 package db
 
 import (
+	"github.com/Colocust/strcture"
 	"time"
 	"tinydb/object"
-	"tinydb/server"
-	"tinydb/structure"
 )
 
 type DB struct {
-	db     *structure.Dict
-	expire *structure.Dict
+	db     *strcture.Dict
+	expire *strcture.Dict
 }
+
+const (
+	LookupNone     = 0
+	LookupNoTouch  = 1 << 0
+	LookupNoNotify = 1 << 1
+)
 
 func NewDB() *DB {
 	return &DB{
-		db:     structure.NewDict(),
-		expire: structure.NewDict(),
+		db:     strcture.NewDict(),
+		expire: strcture.NewDict(),
 	}
 }
 
@@ -59,7 +64,7 @@ func (db *DB) LookupKeyReadOrReply(key *object.Object) *object.Object {
 }
 
 func (db *DB) lookupKeyRead(key *object.Object) *object.Object {
-	return db.lookupKeyReadWithFlags(key, server.LookupNone)
+	return db.lookupKeyReadWithFlags(key, LookupNone)
 }
 
 func (db *DB) lookupKeyReadWithFlags(key *object.Object, flag int) *object.Object {
@@ -83,7 +88,7 @@ func (db *DB) lookupKey(key *object.Object, flag int) *object.Object {
 }
 
 func (db *DB) LookUpKeyWrite(key *object.Object) *object.Object {
-	return db.lookUpKeyWriteWithFlags(key, server.LookupNone)
+	return db.lookUpKeyWriteWithFlags(key, LookupNone)
 }
 
 func (db *DB) lookUpKeyWriteWithFlags(key *object.Object, flag int) *object.Object {
