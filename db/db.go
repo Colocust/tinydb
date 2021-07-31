@@ -1,24 +1,47 @@
 package db
 
 import (
+	"time"
 	"tinydb/object"
 	"tinydb/server"
 	"tinydb/structure"
 )
 
 type DB struct {
-	d *structure.Dict
-	e *structure.Dict
+	db     *structure.Dict
+	expire *structure.Dict
 }
 
 func NewDB() *DB {
 	return &DB{
-		d: structure.NewDict(),
+		db: structure.NewDict(),
 	}
 }
 
+func (db *DB) setExpire(key string, when int) {
+	db.expire.Set(key, when)
+}
+
+func (db *DB) getExpire(key string) int {
+	expire := db.expire.Get(key)
+	if expire == nil {
+		return -1
+	}
+	return expire.(int)
+}
+
 func (db *DB) keyIsExpired(key string) bool {
-	return true
+	when := db.getExpire(key)
+	if when < 0 {
+		return false
+	}
+	now := time.Now().Second()
+	return now > when
+}
+
+func (db *DB) expireKey(key string) {
+	db.db.Remove(key)
+	db.expire.Remove(key)
 }
 
 // 删除一个key 当它过期的时候
@@ -26,10 +49,7 @@ func (db *DB) expireIfNeeded(key string) bool {
 	if !db.keyIsExpired(key) {
 		return false
 	}
-
-	server.StatExpiredKey++
-	// 同步/异步删除key (根据配置而定)
-
+	db.expireKey(key)
 	return true
 }
 
@@ -43,25 +63,20 @@ func (db *DB) lookupKeyRead(key string) *object.Object {
 
 func (db *DB) lookupKeyReadWithFlags(key string, flag int) *object.Object {
 	if db.expireIfNeeded(key) {
-		server.StatMissesKey++
+		return nil
 	}
 	obj := db.lookupKey(key, flag)
-	if obj == nil {
-		server.StatMissesKey++
-	} else {
-		server.StatHitsKey++
-	}
-
 	return obj
 }
 
 func (db *DB) lookupKey(key string, flag int) *object.Object {
-	obj := db.d.Get(key).(*object.Object)
-	if obj != nil {
-		if flag == 1 {
-			// 补充LRU
-		}
-		return obj
+	obj := db.db.Get(key).(*object.Object)
+	if obj == nil {
+		return nil
 	}
-	return nil
+
+	if flag == 1 {
+		// 补充LRU
+	}
+	return obj
 }
