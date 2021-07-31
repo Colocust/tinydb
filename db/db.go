@@ -14,11 +14,12 @@ type DB struct {
 
 func NewDB() *DB {
 	return &DB{
-		db: structure.NewDict(),
+		db:     structure.NewDict(),
+		expire: structure.NewDict(),
 	}
 }
 
-func (db *DB) setExpire(key *object.Object, when *object.Object) {
+func (db *DB) SetExpire(key *object.Object, when *object.Object) {
 	db.expire.Set(*key.GetPtr().(*string), when)
 }
 
@@ -79,4 +80,20 @@ func (db *DB) lookupKey(key *object.Object, flag int) *object.Object {
 		// 补充LRU
 	}
 	return obj
+}
+
+func (db *DB) LookUpKeyWrite(key *object.Object) *object.Object {
+	return db.lookUpKeyWriteWithFlags(key, server.LookupNone)
+}
+
+func (db *DB) lookUpKeyWriteWithFlags(key *object.Object, flag int) *object.Object {
+	db.expireIfNeeded(key)
+	return db.lookupKey(key, flag)
+}
+
+func (db *DB) SetKey(key *object.Object, value *object.Object, keepTTL bool) {
+	if !keepTTL {
+		db.expire.Remove(*key.GetPtr().(*string))
+	}
+	db.db.Set(*key.GetPtr().(*string), value)
 }
