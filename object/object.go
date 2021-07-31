@@ -1,7 +1,5 @@
 package object
 
-import "tinydb/structure"
-
 type Object struct {
 	t        uint8
 	encoding uint8
@@ -28,6 +26,22 @@ func (obj *Object) GetPtr() interface{} {
 	return obj.ptr
 }
 
-func createSdsObject(p *structure.Sds) *Object {
+func (obj *Object) SetType(t uint8) {
+	obj.t = t
+}
+
+func (obj *Object) SetEncoding(encoding uint8) {
+	obj.encoding = encoding
+}
+
+func (obj *Object) SetPtr(ptr interface{}) {
+	obj.ptr = ptr
+}
+
+func NewStringObject(p *string) *Object {
 	return newObject(ObjString, EncodingRaw, p)
+}
+
+func NewIntObject(p *int) *Object {
+	return newObject(ObjString, EncodingInt, p)
 }
