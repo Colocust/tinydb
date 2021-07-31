@@ -18,19 +18,19 @@ func NewDB() *DB {
 	}
 }
 
-func (db *DB) setExpire(key string, when int) {
-	db.expire.Set(key, when)
+func (db *DB) setExpire(key *object.Object, when *object.Object) {
+	db.expire.Set(*key.GetPtr().(*string), when)
 }
 
-func (db *DB) getExpire(key string) int {
-	expire := db.expire.Get(key)
+func (db *DB) getExpire(key *object.Object) int {
+	expire := db.expire.Get(*key.GetPtr().(*string))
 	if expire == nil {
 		return -1
 	}
-	return expire.(int)
+	return *expire.(*object.Object).GetPtr().(*int)
 }
 
-func (db *DB) keyIsExpired(key string) bool {
+func (db *DB) keyIsExpired(key *object.Object) bool {
 	when := db.getExpire(key)
 	if when < 0 {
 		return false
@@ -39,13 +39,13 @@ func (db *DB) keyIsExpired(key string) bool {
 	return now > when
 }
 
-func (db *DB) expireKey(key string) {
-	db.db.Remove(key)
-	db.expire.Remove(key)
+func (db *DB) expireKey(key *object.Object) {
+	db.db.Remove(*key.GetPtr().(*string))
+	db.expire.Remove(*key.GetPtr().(*string))
 }
 
 // 删除一个key 当它过期的时候
-func (db *DB) expireIfNeeded(key string) bool {
+func (db *DB) expireIfNeeded(key *object.Object) bool {
 	if !db.keyIsExpired(key) {
 		return false
 	}
@@ -53,15 +53,15 @@ func (db *DB) expireIfNeeded(key string) bool {
 	return true
 }
 
-func (db *DB) LookupKeyReadOrReply(key string) *object.Object {
+func (db *DB) LookupKeyReadOrReply(key *object.Object) *object.Object {
 	return db.lookupKeyRead(key)
 }
 
-func (db *DB) lookupKeyRead(key string) *object.Object {
+func (db *DB) lookupKeyRead(key *object.Object) *object.Object {
 	return db.lookupKeyReadWithFlags(key, server.LookupNone)
 }
 
-func (db *DB) lookupKeyReadWithFlags(key string, flag int) *object.Object {
+func (db *DB) lookupKeyReadWithFlags(key *object.Object, flag int) *object.Object {
 	if db.expireIfNeeded(key) {
 		return nil
 	}
@@ -69,8 +69,8 @@ func (db *DB) lookupKeyReadWithFlags(key string, flag int) *object.Object {
 	return obj
 }
 
-func (db *DB) lookupKey(key string, flag int) *object.Object {
-	obj := db.db.Get(key).(*object.Object)
+func (db *DB) lookupKey(key *object.Object, flag int) *object.Object {
+	obj := db.db.Get(*key.GetPtr().(*string)).(*object.Object)
 	if obj == nil {
 		return nil
 	}
