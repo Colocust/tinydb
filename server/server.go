@@ -11,3 +11,8 @@ const (
 	LookupNoTouch  = 1 << 0
 	LookupNoNotify = 1 << 1
 )
+
+const (
+	OK  = 1
+	ERR = 0
+)
