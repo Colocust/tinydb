@@ -77,12 +77,10 @@ func (db *DB) lookupKeyReadWithFlags(key *object.Object, flag int) *object.Objec
 
 func (db *DB) lookupKey(key *object.Object, flag int) *object.Object {
 	obj := db.db.Get(*key.GetPtr().(*string)).(*object.Object)
-	if obj == nil {
-		return nil
-	}
-
-	if flag == 1 {
-		// 补充LRU
+	if obj != nil {
+		if flag == 1 {
+			// 补充LRU
+		}
 	}
 	return obj
 }

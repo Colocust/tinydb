@@ -1,7 +1,7 @@
 package object
 
 import (
-	"errors"
+	"tinydb/enum"
 )
 
 type Object struct {
@@ -50,23 +50,25 @@ func NewIntObject(p *int) *Object {
 	return newObject(ObjString, EncodingInt, p)
 }
 
-func (obj *Object) GetIntOrReply(target *int) error {
+func (obj *Object) GetIntOrReply(target *int) int {
 	var value int
-	if err := obj.getInt(&value); err != nil {
-		//addReply
-		return err
+	res := obj.getInt(&value)
+	if res == enum.OK {
+		target = &value
 	}
-	target = &value
-	return nil
+	return enum.OK
 }
 
-func (obj *Object) getInt(target *int) error {
+func (obj *Object) getInt(target *int) int {
 	var value int
-	if obj.GetType() != ObjString || obj.GetEncoding() != EncodingInt {
-		return errors.New("wrong type or wrong encoding")
+	if obj.GetType() != ObjString {
+		return enum.ERR
+	}
+	if obj.GetEncoding() != EncodingInt {
+		return enum.ERR
 	}
 
 	value = *obj.ptr.(*int)
 	target = &value
-	return nil
+	return enum.OK
 }
