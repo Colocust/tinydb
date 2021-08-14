@@ -1,12 +1,13 @@
 package errors
 
 type TypeError struct {
+	text string
 }
 
 func (e *TypeError) Error() string {
-	return "errors type"
+	return e.text
 }
 
-func NewTypeError() *TypeError {
-	return &TypeError{}
+func NewTypeError(text string) *TypeError {
+	return &TypeError{text: text}
 }
