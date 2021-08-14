@@ -1,0 +1,7 @@
+addr: 127.0.0.1:8899
+
+# key最大值128byte
+max_key_size: 128
+
+# value最大值512MB
+max_value_size: 536870912

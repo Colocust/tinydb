@@ -1,17 +1,35 @@
 package main
 
 import (
+	"flag"
 	"fmt"
-	"tinydb/db"
+	"log"
+	"os"
+	"tinydb/config"
 )
 
-type (
-	Server struct {
-		db *db.DB
-	}
-)
+func init() {
+	log.SetFlags(log.LstdFlags)
+}
 
 func main() {
-	s := new(Server)
-	fmt.Println(s)
+	cfg, err := loadConfig()
+	if err != nil {
+		return
+	}
+	fmt.Println(cfg)
+}
+
+func loadConfig() (cfg *config.Config, err error) {
+	var c *string
+	c = flag.String("c", "", "config file")
+	flag.Parse()
+
+	if *c == "" {
+		log.Println("Warning: no config file specified, using the default config.")
+		wd, _ := os.Getwd()
+		*c = wd + "/config.yaml"
+	}
+	cfg, err = config.NewConfig(*c)
+	return
 }
