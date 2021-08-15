@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"tinydb/config"
+	"tinydb/enum"
 )
 
 func init() {
@@ -13,14 +14,19 @@ func init() {
 }
 
 func main() {
-	cfg, err := loadConfig()
-	if err != nil {
+	var (
+		cfg *config.Config
+		ok  int
+	)
+
+	if cfg, ok = loadConfig(); ok == enum.ERR {
 		return
 	}
+
 	fmt.Println(cfg)
 }
 
-func loadConfig() (cfg *config.Config, err error) {
+func loadConfig() (cfg *config.Config, ok int) {
 	var c *string
 	c = flag.String("c", "", "config file")
 	flag.Parse()
@@ -30,6 +36,10 @@ func loadConfig() (cfg *config.Config, err error) {
 		wd, _ := os.Getwd()
 		*c = wd + "/config.yaml"
 	}
-	cfg, err = config.NewConfig(*c)
+
+	if cfg, ok = config.NewConfig(*c); ok == enum.OK {
+		ok = cfg.Check()
+	}
+
 	return
 }
