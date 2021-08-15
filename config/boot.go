@@ -1,9 +1,11 @@
 package config
 
 import (
+	"flag"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"log"
+	"os"
 	"tinydb/enum"
 )
 
@@ -54,5 +56,23 @@ func (cfg *Config) Check() (res int) {
 	}
 
 	res = enum.OK
+	return
+}
+
+func Load() (cfg *Config, ok int) {
+	var c *string
+	c = flag.String("c", "", "config file")
+	flag.Parse()
+
+	if *c == "" {
+		log.Println("Warning: no config file specified, using the default config.")
+		wd, _ := os.Getwd()
+		*c = wd + "/config.yaml"
+	}
+
+	if cfg, ok = NewConfig(*c); ok == enum.OK {
+		ok = cfg.Check()
+	}
+
 	return
 }

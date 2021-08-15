@@ -1,15 +1,22 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
-	"os"
+	"net"
 	"tinydb/config"
 	"tinydb/enum"
 )
 
 func init() {
+	fmt.Println(
+
+		" _____    ____   \n" +
+			"|  __ \\  |  _ \\ \n" +
+			"| |  | | | |_) |  \n" +
+			"| |  | | |  _ <   \n" +
+			"| |__| | | |_) |  \n" +
+			"|_____/  |____/ ")
 	log.SetFlags(log.LstdFlags)
 }
 
@@ -19,27 +26,49 @@ func main() {
 		ok  int
 	)
 
-	if cfg, ok = loadConfig(); ok == enum.ERR {
+	if cfg, ok = config.Load(); ok == enum.ERR {
 		return
 	}
 
-	fmt.Println(cfg)
+	ln, err := net.Listen("tcp", cfg.Addr)
+	if err != nil {
+		log.Println("Error: server boot error，The cause of the error is " + err.Error())
+		return
+	}
+
+	for {
+		var conn net.Conn
+		if conn, err = ln.Accept(); err != nil {
+			log.Println("Warning: accept error")
+			continue
+		}
+
+		go handle(conn)
+	}
 }
 
-func loadConfig() (cfg *config.Config, ok int) {
-	var c *string
-	c = flag.String("c", "", "config file")
-	flag.Parse()
+func handle(c net.Conn) {
+	defer func() {
+		c.Close()
+		log.Println(c.RemoteAddr().String() + "断开连接")
+	}()
 
-	if *c == "" {
-		log.Println("Warning: no config file specified, using the default config.")
-		wd, _ := os.Getwd()
-		*c = wd + "/config.yaml"
+	log.Println(c.RemoteAddr().String() + "连接了")
+
+	for {
+		var (
+			n    int
+			err  error
+			data string
+		)
+
+		buf := make([]byte, 2048)
+		if n, err = c.Read(buf); err != nil {
+			break
+		}
+
+		data = string(buf[:n])
+		fmt.Println(data)
+		c.Write([]byte("s \n"))
 	}
-
-	if cfg, ok = config.NewConfig(*c); ok == enum.OK {
-		ok = cfg.Check()
-	}
-
-	return
 }
