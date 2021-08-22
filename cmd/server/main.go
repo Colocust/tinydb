@@ -4,8 +4,12 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"os/signal"
+	"strconv"
+	"syscall"
 	"tinydb/config"
 	"tinydb/enum"
+	"tinydb/server"
 )
 
 func init() {
@@ -22,15 +26,26 @@ func init() {
 
 func main() {
 	var (
-		cfg *config.Config
-		ok  int
+		cfg  *config.Config
+		ok   int
+		serv *server.Server
 	)
 
+	// 加载配置
 	if cfg, ok = config.Load(); ok == enum.ERR {
 		return
 	}
 
-	ln, err := net.Listen("tcp", cfg.Addr)
+	server.InitServer(cfg)
+	serv = server.GetServ()
+	log.Println("Info: Pid = " + strconv.Itoa(serv.Pid))
+	signal.Ignore(syscall.SIGHUP, syscall.SIGPIPE)
+
+	handleTcp()
+}
+
+func handleTcp() {
+	ln, err := net.Listen("tcp", server.GetServ().Cfg.Addr)
 	if err != nil {
 		log.Println("Error: server boot error，The cause of the error is " + err.Error())
 		return
