@@ -16,14 +16,18 @@ type (
 	}
 )
 
-var Serv *Server
+var serv *Server
 
-func InitServer() {
-	Serv = &Server{
+func InitServ() {
+	serv = &Server{
 		pid:     os.Getpid(),
 		db:      db.NewDB(),
 		clients: strcture.NewList(),
 	}
+}
+
+func GetServ() *Server {
+	return serv
 }
 
 func (serv *Server) GetPid() int {
