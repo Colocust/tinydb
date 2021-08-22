@@ -15,8 +15,8 @@ type Config struct {
 	MaxValueSize uint32 `yaml:"max_value_size"`
 }
 
-func NewConfig(filePath string) (c *Config, res int) {
-	data, err := ioutil.ReadFile(filePath)
+func NewConfig(fp string) (c *Config, res int) {
+	data, err := ioutil.ReadFile(fp)
 
 	if err != nil {
 		log.Println("Error: Read config file error，The cause of the error is " + err.Error())
@@ -25,14 +25,30 @@ func NewConfig(filePath string) (c *Config, res int) {
 	}
 
 	c = new(Config)
-	err = yaml.Unmarshal(data, c)
-	if err != nil {
+	if err = yaml.Unmarshal(data, c); err != nil {
 		log.Println("Error: Parsing config error，The cause of the error is " + err.Error())
 		res = enum.ERR
 		return
 	}
 
 	res = enum.OK
+	return
+}
+
+func Load() (cfg *Config, ok int) {
+	c := flag.String("c", "", "config file")
+	flag.Parse()
+
+	if *c == "" {
+		log.Println("Warning: no config file specified, using the default config.")
+		wd, _ := os.Getwd()
+		*c = wd + "/config.yaml"
+	}
+
+	if cfg, ok = NewConfig(*c); ok == enum.OK {
+		ok = cfg.Check()
+	}
+
 	return
 }
 
@@ -56,23 +72,5 @@ func (cfg *Config) Check() (res int) {
 	}
 
 	res = enum.OK
-	return
-}
-
-func Load() (cfg *Config, ok int) {
-	var c *string
-	c = flag.String("c", "", "config file")
-	flag.Parse()
-
-	if *c == "" {
-		log.Println("Warning: no config file specified, using the default config.")
-		wd, _ := os.Getwd()
-		*c = wd + "/config.yaml"
-	}
-
-	if cfg, ok = NewConfig(*c); ok == enum.OK {
-		ok = cfg.Check()
-	}
-
 	return
 }
