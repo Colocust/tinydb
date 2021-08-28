@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"tinydb/enum"
 )
 
 type Config struct {
@@ -16,27 +15,23 @@ type Config struct {
 	MaxClient    uint32 `yaml:"max_client"`
 }
 
-func NewConfig(fp string) (c *Config, res int) {
+func NewConfig(fp string) (c *Config) {
 	data, err := ioutil.ReadFile(fp)
 
 	if err != nil {
 		log.Println("Error: Read config file error，The cause of the error is " + err.Error())
-		res = enum.ERR
-		return
+		os.Exit(1)
 	}
 
 	c = new(Config)
 	if err = yaml.Unmarshal(data, c); err != nil {
 		log.Println("Error: Parsing config error，The cause of the error is " + err.Error())
-		res = enum.ERR
-		return
+		os.Exit(1)
 	}
-
-	res = enum.OK
 	return
 }
 
-func Load() (cfg *Config, ok int) {
+func Load() (cfg *Config) {
 	c := flag.String("c", "", "config file")
 	flag.Parse()
 
@@ -46,7 +41,7 @@ func Load() (cfg *Config, ok int) {
 		*c = wd + "/config.yaml"
 	}
 
-	cfg, ok = NewConfig(*c)
+	cfg = NewConfig(*c)
 
 	return
 }
