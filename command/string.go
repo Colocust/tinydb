@@ -1,7 +1,9 @@
 package command
 
 import (
+	"fmt"
 	"time"
+	"tinydb"
 	"tinydb/db"
 	"tinydb/errors"
 	"tinydb/object"
@@ -15,9 +17,14 @@ const (
 	ObjKeepTTL = 1 << 4
 )
 
-func GetCommand(d *db.DB, key *object.Object) (obj *object.Object, err error) {
-	return getGenericCommand(d, key)
+func Get(c *tinydb.Client) (result interface{}, err error) {
+	fmt.Println("ssss")
+	return nil, err
 }
+
+//func GetCommand(d *db.DB, key *object.Object) (obj *object.Object, err error) {
+//	return getGenericCommand(d, key)
+//}
 
 func getGenericCommand(d *db.DB, key *object.Object) (obj *object.Object, err error) {
 	obj = d.LookupKeyReadOrReply(key)
