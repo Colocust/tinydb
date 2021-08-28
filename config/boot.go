@@ -13,6 +13,7 @@ type Config struct {
 	Addr         string `yaml:"addr"`
 	MaxKeySize   uint32 `yaml:"max_key_size"`
 	MaxValueSize uint32 `yaml:"max_value_size"`
+	MaxClient    uint32 `yaml:"max_client"`
 }
 
 func NewConfig(fp string) (c *Config, res int) {
@@ -45,32 +46,7 @@ func Load() (cfg *Config, ok int) {
 		*c = wd + "/config.yaml"
 	}
 
-	if cfg, ok = NewConfig(*c); ok == enum.OK {
-		ok = cfg.Check()
-	}
+	cfg, ok = NewConfig(*c)
 
-	return
-}
-
-func (cfg *Config) Check() (res int) {
-	if cfg.Addr == "" {
-		res = enum.ERR
-		log.Println("Error: The addr config error")
-		return
-	}
-
-	if cfg.MaxKeySize == 0 {
-		res = enum.ERR
-		log.Println("Error: The max_key_size config error")
-		return
-	}
-
-	if cfg.MaxValueSize == 0 {
-		res = enum.ERR
-		log.Println("Error: The max_value_size config error")
-		return
-	}
-
-	res = enum.OK
 	return
 }
