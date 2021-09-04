@@ -2,14 +2,16 @@ package main
 
 import (
 	"fmt"
+	"github.com/Colocust/strcture"
+	"github.com/tidwall/evio"
 	"log"
-	"net"
+	"os"
 	"os/signal"
 	"strconv"
 	"syscall"
+	"tinydb"
 	"tinydb/config"
-	"tinydb/enum"
-	"tinydb/server"
+	"tinydb/db"
 )
 
 func init() {
@@ -25,65 +27,26 @@ func init() {
 }
 
 func main() {
-	var (
-		cfg  *config.Config
-		ok   int
-		serv *server.Server
-	)
+	tinydb.Serv.Cfg = config.Load()
+	initServer()
 
-	// 加载配置
-	if cfg, ok = config.Load(); ok == enum.ERR {
+	var events evio.Events
+	events.Data = func(c evio.Conn, in []byte) (out []byte, action evio.Action) {
+		out = []byte("s")
 		return
 	}
 
-	server.InitServer(cfg)
-	serv = server.GetServ()
-	log.Println("Info: Pid = " + strconv.Itoa(serv.Pid))
+	if err := evio.Serve(events, "tcp://localhost:5000"); err != nil {
+		panic(err.Error())
+	}
+}
+
+func initServer() {
 	signal.Ignore(syscall.SIGHUP, syscall.SIGPIPE)
 
-	handleTcp()
-}
+	tinydb.Serv.Pid = os.Getpid()
+	tinydb.Serv.Clients = strcture.NewList()
+	tinydb.Serv.DB = db.NewDB()
 
-func handleTcp() {
-	ln, err := net.Listen("tcp", server.GetServ().Cfg.Addr)
-	if err != nil {
-		log.Println("Error: server boot error，The cause of the error is " + err.Error())
-		return
-	}
-
-	for {
-		var conn net.Conn
-		if conn, err = ln.Accept(); err != nil {
-			log.Println("Warning: accept error")
-			continue
-		}
-
-		go handle(conn)
-	}
-}
-
-func handle(c net.Conn) {
-	defer func() {
-		c.Close()
-		log.Println(c.RemoteAddr().String() + "断开连接")
-	}()
-
-	log.Println(c.RemoteAddr().String() + "连接了")
-
-	for {
-		var (
-			n    int
-			err  error
-			data string
-		)
-
-		buf := make([]byte, 2048)
-		if n, err = c.Read(buf); err != nil {
-			break
-		}
-
-		data = string(buf[:n])
-		fmt.Println(data)
-		c.Write([]byte("s \n"))
-	}
+	log.Println("Info: Pid = " + strconv.Itoa(tinydb.Serv.Pid))
 }
