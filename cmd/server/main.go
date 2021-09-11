@@ -33,12 +33,8 @@ func main() {
 			conn.SetContext(tinydb.NewClient())
 		}
 
-		query := tinydb.ReadQueryFromClient(in)
-
 		c := conn.Context().(*tinydb.Client)
-		c.Argc = len(query)
-		c.Argv = query
-
+		c.ReadQueryFromClient(in)
 		tinydb.SetCurrentClient(c)
 		return
 	}
