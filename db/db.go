@@ -12,9 +12,9 @@ type DB struct {
 }
 
 const (
-	LookupNone     = 0
-	LookupNoTouch  = 1 << 0
-	LookupNoNotify = 1 << 1
+	LookupNone = iota
+	LookupNoTouch
+	LookupNoNotify
 )
 
 func NewDB() *DB {

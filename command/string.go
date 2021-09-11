@@ -10,11 +10,11 @@ import (
 )
 
 const (
-	ObjSetNx   = 1 << 0
-	ObjSetXx   = 1 << 1
-	ObjSetEx   = 1 << 2
-	ObjSetPx   = 1 << 3
-	ObjKeepTTL = 1 << 4
+	ObjSetNx = iota
+	ObjSetXx
+	ObjSetEx
+	ObjSetPx
+	ObjKeepTTL
 )
 
 func Get(c *tinydb.Client) (result interface{}, err error) {

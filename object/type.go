@@ -1,9 +1,9 @@
 package object
 
 const (
-	ObjString = 0
-	ObjList   = 1
-	ObjSet    = 2
-	ObjZSet   = 3
-	ObjHash   = 4
+	ObjString = iota
+	ObjList
+	ObjSet
+	ObjZSet
+	ObjHash
 )
