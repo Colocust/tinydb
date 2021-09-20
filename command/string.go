@@ -3,7 +3,6 @@ package command
 import (
 	"fmt"
 	"time"
-	"tinydb"
 	"tinydb/db"
 	"tinydb/errors"
 	"tinydb/object"
@@ -17,7 +16,7 @@ const (
 	ObjKeepTTL
 )
 
-func Get(c *tinydb.Client) (result interface{}, err error) {
+func Get(param []*object.Object) (result *object.Object, err error) {
 	fmt.Println("ssss")
 	return nil, err
 }

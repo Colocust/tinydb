@@ -1,21 +1,35 @@
 package command
 
 import (
-	"errors"
-	"tinydb"
+	"github.com/Colocust/strcture"
+	"log"
+	"tinydb/object"
 )
 
-type HandlerFunc func(c *tinydb.Client) (result interface{}, err error)
+type (
+	Command struct {
+		Func HandlerFunc
+	}
+	HandlerFunc func(param []*object.Object) (result *object.Object, err error)
+)
 
-var Commands = make(map[string]HandlerFunc)
+var Commands *strcture.Dict
 
 func init() {
-	Commands["get"] = Get
+	Commands = strcture.NewDict()
+
+	Commands.Set("Get", &Command{
+		Func: Get,
+	})
 }
 
-func GetCommand(command string) (f HandlerFunc, err error) {
-	if f = Commands[command]; f == nil {
-		err = errors.New("wrong command" + command)
+func LookUpCommand(argv string) *Command {
+	cmd := Commands.Get(argv)
+
+	if cmd == nil {
+		log.Println("(error) ERR unknown command " + argv)
+		return nil
 	}
-	return
+
+	return cmd.(*Command)
 }
