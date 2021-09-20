@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"syscall"
 	"tinydb"
+	_ "tinydb/command"
 )
 
 func init() {

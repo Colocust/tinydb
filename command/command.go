@@ -24,6 +24,10 @@ func init() {
 		Arity: 1,
 		Func:  Get,
 	})
+	Commands.Set("Set", &Command{
+		Arity: -2,
+		Func:  Set,
+	})
 }
 
 func LookUpCommand(argv string) *Command {

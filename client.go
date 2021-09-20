@@ -77,5 +77,16 @@ func HandleClient(conn evio.Conn, in []byte) (out []byte, action evio.Action) {
 		return
 	}
 
+	switch resp.GetEncoding() {
+	case object.EncodingRaw:
+		out = []byte(resp.GetPtr().(string))
+		break
+	case object.EncodingInt:
+		out = tool.IntToBytes(resp.GetPtr().(int))
+		break
+	}
+
+	out = append(out, []byte("\n")...)
+
 	return
 }

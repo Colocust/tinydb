@@ -8,7 +8,8 @@ import (
 )
 
 const (
-	ObjSetNx = iota
+	ObjSetWithNoFlag = iota
+	ObjSetNx
 	ObjSetXx
 	ObjSetEx
 	ObjSetPx
@@ -19,10 +20,23 @@ func Get(db *db.DB, param []*object.Object) (result *object.Object, err error) {
 	return get(db, param[0])
 }
 
-//
-//func Set(db *db.DB, param []*object.Object) (result *object.Object, err error) {
-//
-//}
+func Set(db *db.DB, param []*object.Object) (result *object.Object, err error) {
+	var flag int
+
+	//for i := 2; i < len(param); i++ {
+	//	if i == len(param)-1 {
+	//		next := nil
+	//	} else {
+	//		next := param[i+1]
+	//	}
+	//}
+
+	if err = set(db, flag, param[0], param[1], nil); err != nil {
+		return
+	}
+	result = object.NewStringObject("OK")
+	return
+}
 
 func get(d *db.DB, key *object.Object) (result *object.Object, err error) {
 	result = d.LookupKeyReadOrReply(key)
