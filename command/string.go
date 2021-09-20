@@ -16,7 +16,7 @@ const (
 	ObjKeepTTL
 )
 
-func Get(param []*object.Object) (result *object.Object, err error) {
+func Get(db *db.DB, param []*object.Object) (result *object.Object, err error) {
 	fmt.Println("ssss")
 	return nil, err
 }

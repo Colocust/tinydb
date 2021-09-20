@@ -3,6 +3,7 @@ package command
 import (
 	"github.com/Colocust/strcture"
 	"log"
+	"tinydb/db"
 	"tinydb/object"
 )
 
@@ -10,7 +11,7 @@ type (
 	Command struct {
 		Func HandlerFunc
 	}
-	HandlerFunc func(param []*object.Object) (result *object.Object, err error)
+	HandlerFunc func(db *db.DB, param []*object.Object) (result *object.Object, err error)
 )
 
 var Commands *strcture.Dict

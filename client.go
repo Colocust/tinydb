@@ -61,7 +61,7 @@ func HandleClient(conn evio.Conn, in []byte) (out []byte, action evio.Action) {
 		return
 	}
 
-	_, _ = f.Func(client.Argv[1:])
+	_, _ = f.Func(client.DB, client.Argv[1:])
 
 	return out, action
 }
