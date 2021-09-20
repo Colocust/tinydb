@@ -42,11 +42,11 @@ func (obj *Object) SetPtr(ptr interface{}) {
 	obj.ptr = ptr
 }
 
-func NewStringObject(p *string) *Object {
+func NewStringObject(p string) *Object {
 	return newObject(ObjString, EncodingRaw, p)
 }
 
-func NewIntObject(p *int) *Object {
+func NewIntObject(p int) *Object {
 	return newObject(ObjString, EncodingInt, p)
 }
 

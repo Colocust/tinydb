@@ -1,7 +1,6 @@
 package command
 
 import (
-	"fmt"
 	"time"
 	"tinydb/db"
 	"tinydb/errors"
@@ -17,18 +16,21 @@ const (
 )
 
 func Get(db *db.DB, param []*object.Object) (result *object.Object, err error) {
-	fmt.Println("ssss")
-	return nil, err
+	return get(db, param[0])
 }
 
-//func GetCommand(d *db.DB, key *object.Object) (obj *object.Object, err error) {
-//	return getGenericCommand(d, key)
+//
+//func Set(db *db.DB, param []*object.Object) (result *object.Object, err error) {
+//
 //}
 
-func getGenericCommand(d *db.DB, key *object.Object) (obj *object.Object, err error) {
-	obj = d.LookupKeyReadOrReply(key)
+func get(d *db.DB, key *object.Object) (result *object.Object, err error) {
+	result = d.LookupKeyReadOrReply(key)
 
-	if obj.GetType() == object.ObjString {
+	if result == nil {
+		return
+	}
+	if result.GetType() == object.ObjString {
 		return
 	}
 
@@ -36,11 +38,7 @@ func getGenericCommand(d *db.DB, key *object.Object) (obj *object.Object, err er
 	return
 }
 
-func SetCommand(d *db.DB) {
-
-}
-
-func setGenericCommand(db *db.DB, flag int, key *object.Object, value *object.Object, expire *object.Object) (err error) {
+func set(db *db.DB, flag int, key *object.Object, value *object.Object, expire *object.Object) (err error) {
 	if (flag == ObjSetNx && db.LookUpKeyWrite(key) != nil) || (flag == ObjSetXx && db.LookUpKeyWrite(key) == nil) {
 		return
 	}
@@ -62,7 +60,7 @@ func setGenericCommand(db *db.DB, flag int, key *object.Object, value *object.Ob
 
 	db.SetKey(key, value, flag == ObjKeepTTL)
 	if expire != nil {
-		db.SetExpire(key, object.NewIntObject(&ttl))
+		db.SetExpire(key, object.NewIntObject(ttl))
 	}
 	return
 }

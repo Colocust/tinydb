@@ -9,7 +9,8 @@ import (
 
 type (
 	Command struct {
-		Func HandlerFunc
+		Arity int // 正数代表参数的个数，负数代表参数个数>-Arity
+		Func  HandlerFunc
 	}
 	HandlerFunc func(db *db.DB, param []*object.Object) (result *object.Object, err error)
 )
@@ -20,7 +21,8 @@ func init() {
 	Commands = strcture.NewDict()
 
 	Commands.Set("Get", &Command{
-		Func: Get,
+		Arity: 1,
+		Func:  Get,
 	})
 }
 

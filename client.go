@@ -7,6 +7,7 @@ import (
 	"tinydb/command"
 	"tinydb/db"
 	"tinydb/object"
+	"tinydb/tool"
 )
 
 type Client struct {
@@ -34,12 +35,13 @@ func (c *Client) ReadQueryFromClient(in []byte) {
 		}
 		var obj *object.Object
 		if i, err := strconv.Atoi(item); err == nil {
-			obj = object.NewIntObject(&i)
+			obj = object.NewIntObject(i)
 		} else {
-			obj = object.NewStringObject(&item)
+			obj = object.NewStringObject(item)
 		}
 		query = append(query, obj)
 	}
+
 	c.Argc = len(query)
 	c.Argv = query
 }
@@ -53,15 +55,27 @@ func HandleClient(conn evio.Conn, in []byte) (out []byte, action evio.Action) {
 		return
 	}
 
-	cmd := *(client.Argv[0].GetPtr().(*string))
+	key, argc, argv := tool.FirstUpper(client.Argv[0].GetPtr().(string)), client.Argc-1, client.Argv[1:]
 
-	f := command.LookUpCommand(cmd)
-	if f == nil {
-		out = []byte("(error) ERR unknown command " + cmd + "\n")
+	cmd := command.LookUpCommand(key)
+	if cmd == nil {
+		out = []byte("(error) ERR unknown command " + key + "\n")
+		return
+	}
+	if (cmd.Arity > 0 && argc != cmd.Arity) || (cmd.Arity < 0 && -cmd.Arity > argc) {
+		out = []byte("wrong number of arguments for " + key + " command" + "\n")
 		return
 	}
 
-	_, _ = f.Func(client.DB, client.Argv[1:])
+	resp, err := cmd.Func(client.DB, argv)
+	if err != nil {
+		out = []byte(err.Error())
+		return
+	}
+	if resp == nil {
+		out = []byte("nil" + "\n")
+		return
+	}
 
-	return out, action
+	return
 }
