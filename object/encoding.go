@@ -3,6 +3,7 @@ package object
 const (
 	EncodingRaw = iota
 	EncodingInt
+	EncodingLong
 	EncodingHt
 	EncodingZipMap
 	EncodingLinkedList

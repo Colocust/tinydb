@@ -7,14 +7,14 @@ import (
 type Object struct {
 	t        uint8
 	encoding uint8
-	ptr      interface{}
+	value    interface{}
 }
 
 func newObject(t, e uint8, p interface{}) *Object {
 	return &Object{
 		t:        t,
 		encoding: e,
-		ptr:      p,
+		value:    p,
 	}
 }
 
@@ -26,8 +26,8 @@ func (obj *Object) GetEncoding() uint8 {
 	return obj.encoding
 }
 
-func (obj *Object) GetPtr() interface{} {
-	return obj.ptr
+func (obj *Object) GetValue() interface{} {
+	return obj.value
 }
 
 func (obj *Object) SetType(t uint8) {
@@ -38,16 +38,20 @@ func (obj *Object) SetEncoding(encoding uint8) {
 	obj.encoding = encoding
 }
 
-func (obj *Object) SetPtr(ptr interface{}) {
-	obj.ptr = ptr
+func (obj *Object) SetValue(ptr interface{}) {
+	obj.value = ptr
 }
 
-func NewStringObject(p string) *Object {
-	return newObject(ObjString, EncodingRaw, p)
+func NewStringObject(value string) *Object {
+	return newObject(ObjString, EncodingRaw, value)
 }
 
-func NewIntObject(p int) *Object {
-	return newObject(ObjString, EncodingInt, p)
+func NewIntObject(value int) *Object {
+	return newObject(ObjString, EncodingInt, value)
+}
+
+func NewLongLongObject(value int64) *Object {
+	return newObject(ObjString, EncodingLong, value)
 }
 
 func (obj *Object) GetIntValue() (value int, err error) {
@@ -56,10 +60,10 @@ func (obj *Object) GetIntValue() (value int, err error) {
 		return
 	}
 	if obj.GetEncoding() != EncodingInt {
-		err = errors.NewEncodingError("it`s not an int encoding value")
+		err = errors.NewEncodingError(obj.value.(string) + " is not an int encoding value")
 		return
 	}
 
-	value = *obj.ptr.(*int)
+	value = obj.value.(int)
 	return
 }

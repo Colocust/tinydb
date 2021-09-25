@@ -25,8 +25,12 @@ func init() {
 		Func:  Get,
 	})
 	Commands.Set("Set", &Command{
-		Arity: -2,
+		Arity: 2,
 		Func:  Set,
+	})
+	Commands.Set("Setex", &Command{
+		Arity: 3,
+		Func:  Setex,
 	})
 }
 

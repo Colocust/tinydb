@@ -1,6 +1,8 @@
 package tinydb
 
 import (
+	"encoding/json"
+	"errors"
 	"github.com/tidwall/evio"
 	"strconv"
 	"strings"
@@ -55,38 +57,44 @@ func HandleClient(conn evio.Conn, in []byte) (out []byte, action evio.Action) {
 		return
 	}
 
-	key, argc, argv := tool.FirstUpper(client.Argv[0].GetPtr().(string)), client.Argc-1, client.Argv[1:]
+	key, argc, argv := tool.FirstUpper(client.Argv[0].GetValue().(string)), client.Argc-1, client.Argv[1:]
 
-	cmd := command.LookUpCommand(key)
-	if cmd == nil {
-		out = []byte("(error) ERR unknown command " + key + "\n")
-		return
-	}
-	if (cmd.Arity > 0 && argc != cmd.Arity) || (cmd.Arity < 0 && -cmd.Arity > argc) {
-		out = []byte("wrong number of arguments for " + key + " command" + "\n")
-		return
-	}
-
-	resp, err := cmd.Func(client.DB, argv)
+	cmd, err := GetCommand(key, argc)
 	if err != nil {
 		out = []byte(err.Error())
 		return
 	}
-	if resp == nil {
-		out = []byte("nil" + "\n")
+
+	if resp, err := cmd.Func(client.DB, argv); err != nil {
+		out = []byte(err.Error())
+		return
+	} else {
+		if resp == nil {
+			out = []byte("nil")
+			return
+		}
+		if resp.GetEncoding() == object.EncodingRaw {
+			out = []byte(resp.GetValue().(string))
+			return
+		}
+
+		out, _ = json.Marshal(resp.GetValue().(int))
+		return
+	}
+}
+
+func GetCommand(key string, argc int) (cmd *command.Command, err error) {
+	cmd = command.LookUpCommand(key)
+
+	if cmd == nil {
+		err = errors.New("(error) ERR unknown command " + key)
 		return
 	}
 
-	switch resp.GetEncoding() {
-	case object.EncodingRaw:
-		out = []byte(resp.GetPtr().(string))
-		break
-	case object.EncodingInt:
-		out = tool.IntToBytes(resp.GetPtr().(int))
-		break
+	if (cmd.Arity > 0 && argc != cmd.Arity) || (cmd.Arity < 0 && -cmd.Arity > argc) {
+		err = errors.New("wrong number of arguments for " + key + " command")
+		return
 	}
-
-	out = append(out, []byte("\n")...)
 
 	return
 }

@@ -16,25 +16,25 @@ const (
 	ObjKeepTTL
 )
 
+const (
+	SetFail = iota
+	SetSuccess
+)
+
+// Get命令 支持1个参数
 func Get(db *db.DB, param []*object.Object) (result *object.Object, err error) {
 	return get(db, param[0])
 }
 
+// Set命令 支持2个参数
 func Set(db *db.DB, param []*object.Object) (result *object.Object, err error) {
-	var flag int
+	result, err = set(db, ObjSetWithNoFlag, param[0], param[1], nil)
+	return
+}
 
-	//for i := 2; i < len(param); i++ {
-	//	if i == len(param)-1 {
-	//		next := nil
-	//	} else {
-	//		next := param[i+1]
-	//	}
-	//}
-
-	if err = set(db, flag, param[0], param[1], nil); err != nil {
-		return
-	}
-	result = object.NewStringObject("OK")
+// Setex命令 支持3个参数 key value expire(过期时间 单位为秒)
+func Setex(db *db.DB, param []*object.Object) (result *object.Object, err error) {
+	result, err = set(db, ObjSetEx, param[0], param[1], param[2])
 	return
 }
 
@@ -52,29 +52,34 @@ func get(d *db.DB, key *object.Object) (result *object.Object, err error) {
 	return
 }
 
-func set(db *db.DB, flag int, key *object.Object, value *object.Object, expire *object.Object) (err error) {
-	if (flag == ObjSetNx && db.LookUpKeyWrite(key) != nil) || (flag == ObjSetXx && db.LookUpKeyWrite(key) == nil) {
+func set(db *db.DB, flag int, key *object.Object, value *object.Object, expire *object.Object) (result *object.Object, err error) {
+	if flag == ObjSetXx && db.LookUpKeyWrite(key) != nil {
+		result = object.NewIntObject(SetFail)
+		return
+	}
+	if flag == ObjSetXx && db.LookUpKeyWrite(key) == nil {
+		result = object.NewIntObject(SetFail)
 		return
 	}
 
 	var ttl int
 	if expire != nil {
 		ttl, err = expire.GetIntValue()
-
 		if err != nil {
 			return
 		}
-		if ttl <= 0 {
+		if ttl < 0 {
 			err = errors.NewParameterError("invalid expire time")
 			return
 		}
-
-		ttl += time.Now().Second()
+		ttl += int(time.Now().Unix()) // 暂时用int存储时间戳
 	}
 
 	db.SetKey(key, value, flag == ObjKeepTTL)
 	if expire != nil {
 		db.SetExpire(key, object.NewIntObject(ttl))
 	}
+
+	result = object.NewIntObject(SetSuccess)
 	return
 }

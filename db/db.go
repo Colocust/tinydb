@@ -25,15 +25,15 @@ func NewDB() *DB {
 }
 
 func (db *DB) SetExpire(key *object.Object, when *object.Object) {
-	db.expire.Set(key.GetPtr().(string), when)
+	db.expire.Set(key.GetValue().(string), when)
 }
 
 func (db *DB) getExpire(key *object.Object) int {
-	expire := db.expire.Get(key.GetPtr().(string))
+	expire := db.expire.Get(key.GetValue().(string))
 	if expire == nil {
 		return -1
 	}
-	return expire.(*object.Object).GetPtr().(int)
+	return expire.(*object.Object).GetValue().(int)
 }
 
 func (db *DB) keyIsExpired(key *object.Object) bool {
@@ -41,13 +41,13 @@ func (db *DB) keyIsExpired(key *object.Object) bool {
 	if when < 0 {
 		return false
 	}
-	now := time.Now().Second()
+	now := int(time.Now().Unix())
 	return now > when
 }
 
 func (db *DB) expireKey(key *object.Object) {
-	db.db.Remove(key.GetPtr().(string))
-	db.expire.Remove(key.GetPtr().(string))
+	db.db.Remove(key.GetValue().(string))
+	db.expire.Remove(key.GetValue().(string))
 }
 
 // 删除一个key 当它过期的时候
@@ -76,7 +76,7 @@ func (db *DB) lookupKeyReadWithFlags(key *object.Object, flag int) *object.Objec
 }
 
 func (db *DB) lookupKey(key *object.Object, flag int) *object.Object {
-	value := db.db.Get(key.GetPtr().(string))
+	value := db.db.Get(key.GetValue().(string))
 	if value == nil {
 		return nil
 	}
@@ -99,7 +99,7 @@ func (db *DB) lookUpKeyWriteWithFlags(key *object.Object, flag int) *object.Obje
 
 func (db *DB) SetKey(key *object.Object, value *object.Object, keepTTL bool) {
 	if !keepTTL {
-		db.expire.Remove(key.GetPtr().(string))
+		db.expire.Remove(key.GetValue().(string))
 	}
-	db.db.Set(key.GetPtr().(string), value)
+	db.db.Set(key.GetValue().(string), value)
 }
