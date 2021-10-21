@@ -1,7 +1,7 @@
 package object
 
 import (
-	"tinydb/errors"
+	"tinydb/internal/app/zerrors"
 )
 
 type Object struct {
@@ -56,11 +56,11 @@ func NewLongLongObject(value int64) *Object {
 
 func (obj *Object) GetIntValue() (value int, err error) {
 	if obj.GetType() != ObjString {
-		err = errors.NewTypeError("it`s not a string type value")
+		err = zerrors.NewTypeError("it`s not a string type value")
 		return
 	}
 	if obj.GetEncoding() != EncodingInt {
-		err = errors.NewEncodingError(obj.value.(string) + " is not an int encoding value")
+		err = zerrors.NewEncodingError(obj.value.(string) + " is not an int encoding value")
 		return
 	}
 

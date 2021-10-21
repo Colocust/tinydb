@@ -3,8 +3,8 @@ package command
 import (
 	"github.com/Colocust/strcture"
 	"log"
-	"tinydb/db"
-	"tinydb/object"
+	"tinydb/internal/app/db"
+	"tinydb/internal/app/object"
 )
 
 type (

@@ -1,10 +1,11 @@
 package command
 
 import (
+	"fmt"
 	"time"
-	"tinydb/db"
-	"tinydb/errors"
-	"tinydb/object"
+	"tinydb/internal/app/db"
+	"tinydb/internal/app/object"
+	"tinydb/internal/app/zerrors"
 )
 
 const (
@@ -21,18 +22,18 @@ const (
 	SetSuccess
 )
 
-// Get命令 支持1个参数
+// Get Get命令 支持1个参数
 func Get(db *db.DB, param []*object.Object) (result *object.Object, err error) {
 	return get(db, param[0])
 }
 
-// Set命令 支持2个参数
+// Set Set命令 支持2个参数
 func Set(db *db.DB, param []*object.Object) (result *object.Object, err error) {
 	result, err = set(db, ObjSetWithNoFlag, param[0], param[1], nil)
 	return
 }
 
-// Setex命令 支持3个参数 key value expire(过期时间 单位为秒)
+// Setex Setex命令 支持3个参数 key value expire(过期时间 单位为秒)
 func Setex(db *db.DB, param []*object.Object) (result *object.Object, err error) {
 	result, err = set(db, ObjSetEx, param[0], param[1], param[2])
 	return
@@ -48,7 +49,7 @@ func get(d *db.DB, key *object.Object) (result *object.Object, err error) {
 		return
 	}
 
-	err = errors.NewTypeError("it`s not a string type value")
+	err = zerrors.NewTypeError(fmt.Sprintf("it`s not a string type value %v", result.GetValue()))
 	return
 }
 
@@ -69,7 +70,7 @@ func set(db *db.DB, flag int, key *object.Object, value *object.Object, expire *
 			return
 		}
 		if ttl < 0 {
-			err = errors.NewParameterError("invalid expire time")
+			err = zerrors.NewParameterError("invalid expire time")
 			return
 		}
 		ttl += int(time.Now().Unix()) // 暂时用int存储时间戳

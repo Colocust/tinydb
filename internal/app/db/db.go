@@ -3,7 +3,7 @@ package db
 import (
 	"github.com/Colocust/strcture"
 	"time"
-	"tinydb/object"
+	"tinydb/internal/app/object"
 )
 
 type DB struct {

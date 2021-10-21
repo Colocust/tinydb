@@ -1,4 +1,4 @@
-package errors
+package zerrors
 
 type ParameterError struct {
 	text string

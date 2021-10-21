@@ -1,4 +1,4 @@
-package errors
+package zerrors
 
 type EncodingError struct {
 	text string

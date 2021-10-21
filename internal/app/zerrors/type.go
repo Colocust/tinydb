@@ -1,4 +1,4 @@
-package errors
+package zerrors
 
 type TypeError struct {
 	text string
